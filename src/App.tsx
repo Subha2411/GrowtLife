@@ -126,7 +126,7 @@ const STAGES = [
 
 // --- Helper Components ---
 
-const ProgressBar = ({ current, max, colorClass = "bg-indigo-500" }) => {
+const ProgressBar = ({ current, max, colorClass = "bg-indigo-500" }: { current: number; max: number; colorClass?: string }) => {
   const percentage = Math.min(100, Math.max(0, (current / max) * 100));
   return (
     <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">

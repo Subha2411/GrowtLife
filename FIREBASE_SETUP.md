@@ -33,7 +33,7 @@ const firebaseConfig = {
   projectId: "achievement-vault-xxx",
   storageBucket: "achievement-vault-xxx.appspot.com",
   messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123def456"
+  appId: "1:123456789:web:abc123def456",
 };
 ```
 
