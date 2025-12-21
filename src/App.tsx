@@ -1,3 +1,4 @@
+// Latest deployment: Dec 21, 2025 - Complete feature set
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Trophy,
