@@ -1,5 +1,6 @@
 // Latest deployment: Dec 21, 2025 - Complete feature set
 import React, { useState, useEffect, useMemo } from "react";
+import confetti from "canvas-confetti";
 import {
   Trophy,
   Zap,
@@ -167,6 +168,10 @@ export default function GrowthApp() {
     note: "",
   });
 
+  // Celebration State
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationGP, setCelebrationGP] = useState(0);
+
   // Load data from local storage on mount
   useEffect(() => {
     const savedLogs = localStorage.getItem("growth_logs");
@@ -228,6 +233,8 @@ export default function GrowthApp() {
       gp: gpBase,
     };
 
+    const isFirstLog = logs.length === 0;
+
     setLogs((prev) => [newLog, ...prev]);
     setShowLogModal(false);
     setNewLogData({
@@ -236,6 +243,50 @@ export default function GrowthApp() {
       difficulty: "medium",
       note: "",
     });
+
+    // Show celebration for first log
+    if (isFirstLog) {
+      setCelebrationGP(gpBase);
+      setShowCelebration(true);
+
+      // Trigger confetti
+      setTimeout(() => {
+        const duration = 2000;
+        const end = Date.now() + duration;
+
+        const colors = ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#ef4444'];
+
+        (function frame() {
+          confetti({
+            particleCount: 3,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0, y: 0.6 },
+            colors: colors,
+            ticks: 200,
+            gravity: 1,
+          });
+          confetti({
+            particleCount: 3,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1, y: 0.6 },
+            colors: colors,
+            ticks: 200,
+            gravity: 1,
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        })();
+      }, 500);
+
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        setShowCelebration(false);
+      }, 3000);
+    }
   };
 
   // Authentication handlers
@@ -704,6 +755,44 @@ export default function GrowthApp() {
     </div>
   );
 
+  const renderCelebration = () => (
+    <div
+      className={`fixed inset-0 z-[200] flex items-center justify-center transition-opacity duration-500 ${showCelebration ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+    >
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/80" />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center gap-6">
+        {/* GP Text with Animation */}
+        <div
+          className={`text-white font-black text-7xl transform transition-all duration-500 ease-out ${showCelebration
+            ? 'scale-150 opacity-100'
+            : 'scale-50 opacity-0'
+            }`}
+          style={{
+            textShadow: '0 0 30px rgba(99, 102, 241, 0.8), 0 0 60px rgba(99, 102, 241, 0.5)',
+          }}
+        >
+          +{celebrationGP} GP
+        </div>
+
+        {/* Toast Message */}
+        <div
+          className={`text-white text-center px-6 transform transition-all duration-700 delay-500 ${showCelebration
+            ? 'translate-y-0 opacity-100'
+            : 'translate-y-4 opacity-0'
+            }`}
+        >
+          <p className="text-lg font-medium">
+            you're not the same as yesterday anymore. 💜
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 pb-24">
       {/* Top Bar */}
@@ -766,6 +855,7 @@ export default function GrowthApp() {
       {/* Modals */}
       {showLogModal && renderLogModal()}
       {showAuthModal && renderAuthModal()}
+      {renderCelebration()}
       {!user && !showAuthModal && (
         <div className="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center p-6 text-center">
           <div className="bg-indigo-600 p-4 rounded-3xl mb-6 shadow-2xl shadow-indigo-500/20">
