@@ -141,6 +141,296 @@ const ProgressBar = ({ current, max, colorClass = "bg-indigo-500" }: { current: 
   );
 };
 
+
+// EchoCompanion Component - Diamond Evolution
+interface EchoCompanionProps {
+  level: number;
+  isReacting?: boolean;
+}
+
+const EchoCompanion: React.FC<EchoCompanionProps> = ({ level, isReacting = false }) => {
+  const levelConfig = {
+    1: { size: 60, color: '#C8B6FF', opacity: 0.6, facets: 0, sparkles: 0, glow: 0, rotation: 0 },
+    2: { size: 80, color: '#9D7FD9', opacity: 0.8, facets: 4, sparkles: 0, glow: 0, rotation: 0 },
+    3: { size: 100, color: '#7C5AC2', opacity: 0.95, facets: 8, sparkles: 4, glow: 0, rotation: 8 },
+    4: { size: 120, color: '#6B46C1', opacity: 1.0, facets: 12, sparkles: 6, glow: 15, rotation: 6 },
+    5: { size: 140, color: '#4A1D8F', opacity: 1.0, facets: 16, sparkles: 8, glow: 25, rotation: 4 },
+  };
+
+  const config = levelConfig[level as keyof typeof levelConfig] || levelConfig[1];
+  const center = 100;
+  const diamondSize = config.size;
+
+  // Diamond shape points (classic cut)
+  const getDiamondPoints = () => {
+    const top = center - diamondSize / 2;
+    const bottom = center + diamondSize / 2;
+    const left = center - diamondSize / 2.5;
+    const right = center + diamondSize / 2.5;
+    const midY = center;
+
+    if (level === 1) {
+      // Rough, jagged diamond for level 1
+      return `${center},${top - 5} ${right + 3},${midY - 8} ${right - 2},${bottom + 3} ${center + 4},${bottom + 8} ${left + 2},${bottom + 3} ${left - 3},${midY - 8}`;
+    }
+
+    // Smooth diamond for higher levels
+    return `${center},${top} ${right},${midY} ${center + diamondSize / 6},${bottom} ${center},${bottom + diamondSize / 8} ${center - diamondSize / 6},${bottom} ${left},${midY}`;
+  };
+
+  // Facet lines
+  const getFacets = () => {
+    const facets = [];
+    const top = center - diamondSize / 2;
+    const bottom = center + diamondSize / 2;
+    const left = center - diamondSize / 2.5;
+    const right = center + diamondSize / 2.5;
+
+    if (config.facets >= 4) {
+      // Basic facets
+      facets.push(`M${center},${top} L${center},${center}`);
+      facets.push(`M${left},${center} L${right},${center}`);
+      facets.push(`M${center - diamondSize / 6},${bottom} L${center + diamondSize / 6},${bottom}`);
+    }
+
+    if (config.facets >= 8) {
+      // More complex facets
+      facets.push(`M${center},${center} L${left + diamondSize / 4},${center - diamondSize / 4}`);
+      facets.push(`M${center},${center} L${right - diamondSize / 4},${center - diamondSize / 4}`);
+      facets.push(`M${center},${center} L${left + diamondSize / 4},${center + diamondSize / 4}`);
+      facets.push(`M${center},${center} L${right - diamondSize / 4},${center + diamondSize / 4}`);
+    }
+
+    if (config.facets >= 12) {
+      // Advanced facets
+      for (let i = 0; i < 4; i++) {
+        const angle = (i * Math.PI / 2) + Math.PI / 4;
+        const x = center + Math.cos(angle) * diamondSize / 3;
+        const y = center + Math.sin(angle) * diamondSize / 3;
+        facets.push(`M${center},${center} L${x},${y}`);
+      }
+    }
+
+    return facets;
+  };
+
+  // Sparkle positions
+  const getSparkles = () => {
+    const sparkles = [];
+    const positions = [
+      { x: center, y: center - diamondSize / 2 },
+      { x: center + diamondSize / 2.5, y: center },
+      { x: center - diamondSize / 2.5, y: center },
+      { x: center + diamondSize / 4, y: center - diamondSize / 4 },
+      { x: center - diamondSize / 4, y: center - diamondSize / 4 },
+      { x: center, y: center },
+      { x: center + diamondSize / 3, y: center + diamondSize / 4 },
+      { x: center - diamondSize / 3, y: center + diamondSize / 4 },
+    ];
+
+    for (let i = 0; i < config.sparkles; i++) {
+      sparkles.push(positions[i]);
+    }
+
+    return sparkles;
+  };
+
+  return (
+    <div className="relative w-[200px] h-[200px]">
+      <style>{`
+        @keyframes diamond-glow-pulse {
+          0%, 100% { opacity: ${config.opacity}; }
+          50% { opacity: ${Math.min(1, config.opacity + 0.2)}; }
+        }
+        
+        @keyframes diamond-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        @keyframes diamond-rotate-reverse {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
+        }
+        
+        @keyframes diamond-react {
+          0% { transform: scale(1); }
+          25% { transform: scale(1.25); }
+          50% { transform: scale(1); }
+          100% { transform: scale(1); }
+        }
+        
+        @keyframes sparkle-twinkle {
+          0%, 100% { opacity: 0; transform: scale(0); }
+          50% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes sparkle-burst {
+          0% { opacity: 0; transform: scale(0); }
+          30% { opacity: 1; transform: scale(1.5); }
+          100% { opacity: 0; transform: scale(2); }
+        }
+        
+        @keyframes ripple-wave {
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(2); opacity: 0; }
+        }
+        
+    .diamond-core {
+          ${isReacting ? 'animation: diamond-react 0.5s ease-out;' : ''}
+          filter: drop-shadow(0 0 ${isReacting ? config.glow * 2 : config.glow}px ${config.color});
+        }
+        
+        .diamond-facets {
+          ${level >= 3 && config.rotation > 0 ? `animation: diamond-rotate ${config.rotation}s linear infinite;` : ''}
+          ${isReacting ? `animation: diamond-rotate ${config.rotation / 3}s linear !important;` : ''}
+          transform-origin: center;
+        }
+        
+        .diamond-outer {
+          ${level === 5 ? 'animation: diamond-rotate-reverse 6s linear infinite;' : ''}
+        }
+        
+        .sparkle {
+          animation: sparkle-twinkle 2s ease-in-out infinite;
+        }
+        
+        .sparkle-1 { animation-delay: 0s; }
+        .sparkle-2 { animation-delay: 0.3s; }
+        .sparkle-3 { animation-delay: 0.6s; }
+        .sparkle-4 { animation-delay: 0.9s; }
+        .sparkle-5 { animation-delay: 1.2s; }
+        .sparkle-6 { animation-delay: 1.5s; }
+        .sparkle-7 { animation-delay: 1.8s; }
+        .sparkle-8 { animation-delay: 0.4s; }
+        
+        .sparkle-burst {
+          animation: sparkle-burst 1.5s ease-out;
+        }
+        
+        .reaction-ripple {
+          animation: ripple-wave 1.5s ease-out;
+        }
+        
+        .glow-pulse {
+          animation: diamond-glow-pulse 3s ease-in-out infinite;
+        }
+      `}</style>
+
+      <svg
+        width="200"
+        height="200"
+        viewBox="0 0 200 200"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Reaction Ripple Wave */}
+        {isReacting && (
+          <polygon
+            className="reaction-ripple"
+            points={getDiamondPoints()}
+            fill="none"
+            stroke={config.color}
+            strokeWidth="3"
+            opacity="0.8"
+          />
+        )}
+
+        {/* Outer rotation layer for level 5 */}
+        <g className="diamond-outer">
+          {/* Aura effect for level 5 */}
+          {level === 5 && (
+            <polygon
+              points={getDiamondPoints()}
+              fill={config.color}
+              opacity="0.1"
+              transform={`scale(1.3) translate(-${center * 0.3}, -${center * 0.3})`}
+              className="glow-pulse"
+            />
+          )}
+        </g>
+
+        {/* Main diamond with rotation */}
+        <g className="diamond-facets">
+          {/* Diamond body */}
+          <polygon
+            className="diamond-core"
+            points={getDiamondPoints()}
+            fill={config.color}
+            opacity={config.opacity}
+            stroke={config.color}
+            strokeWidth={level === 1 ? "2" : "1"}
+            strokeLinejoin={level === 1 ? "miter" : "round"}
+          />
+
+          {/* Facet lines */}
+          {getFacets().map((path, i) => (
+            <path
+              key={i}
+              d={path}
+              stroke={level >= 4 ? "#ffffff" : config.color}
+              strokeWidth="1"
+              opacity={level >= 3 ? 0.4 : 0.6}
+              fill="none"
+            />
+          ))}
+        </g>
+
+        {/* Sparkle points */}
+        {getSparkles().map((pos, i) => (
+          <g key={i}>
+            {/* Star sparkle */}
+            <circle
+              className={`sparkle sparkle-${i + 1} ${isReacting ? 'sparkle-burst' : ''}`}
+              cx={pos.x}
+              cy={pos.y}
+              r="2"
+              fill="#ffffff"
+            />
+            <line
+              className={`sparkle sparkle-${i + 1} ${isReacting ? 'sparkle-burst' : ''}`}
+              x1={pos.x - 4}
+              y1={pos.y}
+              x2={pos.x + 4}
+              y2={pos.y}
+              stroke="#ffffff"
+              strokeWidth="1"
+            />
+            <line
+              className={`sparkle sparkle-${i + 1} ${isReacting ? 'sparkle-burst' : ''}`}
+              x1={pos.x}
+              y1={pos.y - 4}
+              x2={pos.x}
+              y2={pos.y + 4}
+              stroke="#ffffff"
+              strokeWidth="1"
+            />
+          </g>
+        ))}
+
+        {/* Burst sparkles during reaction */}
+        {isReacting && Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i * Math.PI / 4);
+          const distance = diamondSize / 2 + 20;
+          const x = center + Math.cos(angle) * distance;
+          const y = center + Math.sin(angle) * distance;
+          return (
+            <circle
+              key={`burst-${i}`}
+              className="sparkle-burst"
+              cx={x}
+              cy={y}
+              r="3"
+              fill={config.color}
+              style={{ animationDelay: `${i * 0.1}s` }}
+            />
+          );
+        })}
+      </svg>
+    </div>
+  );
+};
+
+
 // --- Main Application ---
 
 export default function GrowthApp() {
@@ -613,14 +903,10 @@ export default function GrowthApp() {
           </div>
         </div>
 
-        {/* Stage Section */}
+        {/* Echo Companion */}
         <div className="flex flex-col items-center py-4">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full scale-150" />
-            <div className="relative w-32 h-32 rounded-full border border-slate-800 flex items-center justify-center bg-slate-900/80">
-              <div className="absolute inset-0 border border-dashed border-slate-700 rounded-full animate-[spin_20s_linear_infinite]" />
-              <Icon size={48} className={stage.color} />
-            </div>
+          <div className="flex justify-center mb-6">
+            <EchoCompanion level={stage.level} isReacting={false} />
           </div>
           <h2 className="text-3xl font-black text-white mb-1">{stage.name}</h2>
           <p className="text-slate-400 text-sm mb-4">Current growth stage</p>
