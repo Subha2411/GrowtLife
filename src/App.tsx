@@ -52,6 +52,7 @@ interface GrowthLog {
 }
 
 interface UserProfile {
+  name: string;
   email: string;
   uid: string;
 }
@@ -147,6 +148,7 @@ export default function GrowthApp() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState("login"); // "login" or "signup"
+  const [authName, setAuthName] = useState("");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -242,7 +244,7 @@ export default function GrowthApp() {
     setAuthError("");
     setAuthSubmitting(true);
 
-    if (!authEmail || !authPassword) {
+    if (!authName || !authEmail || !authPassword) {
       setAuthError("Please fill in all fields");
       setAuthSubmitting(false);
       return;
@@ -250,10 +252,11 @@ export default function GrowthApp() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
+      setUser({ name: authName, email: authEmail, uid: "demo-user" });
       setShowAuthModal(false);
+      setAuthName("");
       setAuthEmail("");
       setAuthPassword("");
-      setAuthMode("login");
     } catch (error: any) {
       setAuthError(error.message || "Failed to sign up");
       setAuthSubmitting(false);
@@ -276,7 +279,7 @@ export default function GrowthApp() {
       setShowAuthModal(false);
       setAuthEmail("");
       setAuthPassword("");
-      setUser({ email: authEmail, uid: "demo-user" });
+      setUser({ name: authEmail.split('@')[0], email: authEmail, uid: "demo-user" });
     } catch (error: any) {
       setAuthError(error.message || "Failed to login");
       setAuthSubmitting(false);
@@ -311,6 +314,21 @@ export default function GrowthApp() {
           onSubmit={authMode === "login" ? handleLogin : handleSignUp}
           className="space-y-4"
         >
+          {authMode === "signup" && (
+            <div>
+              <label className="block text-slate-400 text-xs uppercase font-bold mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                placeholder="Your name"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                value={authName}
+                onChange={(e) => setAuthName(e.target.value)}
+              />
+            </div>
+          )}
+
           <div>
             <label className="block text-slate-400 text-xs uppercase font-bold mb-2">
               Email
@@ -374,6 +392,7 @@ export default function GrowthApp() {
               onClick={() => {
                 setAuthMode(authMode === "login" ? "signup" : "login");
                 setAuthError("");
+                setAuthName("");
               }}
               className="text-indigo-400 hover:text-indigo-300 font-semibold"
             >
@@ -653,13 +672,14 @@ export default function GrowthApp() {
         <div className="relative mb-6">
           <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full" />
           <div className="relative w-24 h-24 rounded-full border-4 border-indigo-500/30 flex items-center justify-center bg-slate-900 text-4xl font-black text-white">
-            {user?.email?.charAt(0).toUpperCase() || "G"}
+            {user?.name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "G"}
           </div>
         </div>
 
-        <h3 className="text-2xl font-black text-white mb-8">
-          {user?.email?.split('@')[0] || "Grower"}
+        <h3 className="text-2xl font-black text-white mb-2">
+          {user?.name || user?.email?.split('@')[0] || "Grower"}
         </h3>
+        <p className="text-slate-400 text-sm mb-6">{user?.email}</p>
 
         <div className="grid grid-cols-2 gap-4 w-full mb-8">
           <div className="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 text-center">

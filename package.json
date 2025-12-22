@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "git add . && git commit -m \"Deploy: $(date '+%Y-%m-%d %H:%M')\" && git push origin main && echo '✅ Pushed to GitHub! Vercel will deploy in ~2 minutes. Check: https://growtlife25.vercel.app'"
   },
   "dependencies": {
     "@types/canvas-confetti": "^1.9.0",
