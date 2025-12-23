@@ -881,43 +881,86 @@ export default function GrowthApp() {
     const progressToNext = nextStage ? totalGP - stage.minGP : 100;
     const rangeToNext = nextStage ? nextStage.minGP - stage.minGP : 100;
     const Icon = stage.icon;
+    const gpToEvolve = nextStage ? nextStage.minGP - totalGP : 0;
 
     return (
-      <div className="space-y-8 animate-in fade-in duration-500">
-        {/* Header Stats */}
+      <div className="space-y-4 animate-in fade-in duration-500">
+        {/* Greeting */}
+        <div className="mb-4">
+          <h1 className="text-lg font-semibold text-white mb-1" style={{ fontSize: '18px', lineHeight: '1.3' }}>
+            Welcome back, {user?.name || 'Friend'} 👋
+          </h1>
+          <p className="text-sm text-slate-500" style={{ fontSize: '14px', lineHeight: '1.5' }}>
+            You're ahead of where you were yesterday.
+          </p>
+        </div>
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4">
+          {/* Growth Points Card */}
           <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800/50 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-slate-500 mb-2 text-[10px] uppercase font-bold tracking-wider">
-              <Trophy size={14} className="text-slate-400" /> Growth Points
+            <div className="flex items-center gap-2 mb-1" style={{ marginBottom: '4px' }}>
+              <Trophy size={14} className="text-slate-400" />
+              <p className="text-xs uppercase font-semibold text-slate-400" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+                Growth Points
+              </p>
             </div>
-            <div className="text-4xl font-black text-white">{totalGP}</div>
-            <div className="text-[10px] text-slate-500 mt-1">Evidence of progress</div>
+            <p className="text-2xl font-semibold text-white" style={{ fontSize: '24px', lineHeight: '1.3' }}>
+              {totalGP}
+            </p>
+            <p className="text-xs text-slate-500 mt-2" style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px' }}>
+              Evidence of progress
+            </p>
           </div>
+
+          {/* Active Streak Card */}
           <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800/50 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-slate-500 mb-2 text-[10px] uppercase font-bold tracking-wider">
-              <Flame size={14} className="text-orange-500" /> Active Streak
+            <div className="flex items-center gap-2 mb-1" style={{ marginBottom: '4px' }}>
+              <Flame size={14} className="text-orange-500" />
+              <p className="text-xs uppercase font-semibold text-slate-400" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+                Active Streak
+              </p>
             </div>
-            <div className="text-4xl font-black text-white">
-              {streak} <span className="text-sm font-normal text-slate-500">days</span>
-            </div>
+            <p className="text-2xl font-semibold text-white" style={{ fontSize: '24px', lineHeight: '1.3' }}>
+              🔥 {streak}-day{streak !== 1 ? 's' : ''}
+            </p>
+            <p className="text-xs text-slate-500 mt-2" style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px' }}>
+              Don't break the chain
+            </p>
           </div>
         </div>
 
-        {/* Echo Companion */}
-        <div className="flex flex-col items-center py-4">
+        {/* Companion Section */}
+        <div className="flex flex-col items-center py-4" style={{ marginTop: '16px' }}>
           <div className="flex justify-center mb-6">
             <EchoCompanion level={stage.level} isReacting={false} />
           </div>
-          <h2 className="text-3xl font-black text-white mb-1">{stage.name}</h2>
-          <p className="text-slate-400 text-sm mb-4">Current growth stage</p>
 
-          <div className="w-full max-w-xs text-center space-y-4">
-            <p className="text-xs text-slate-500">You're ahead of where you were yesterday</p>
+          {/* Companion Level Text */}
+          <h2 className="text-lg font-semibold text-white text-center" style={{ fontSize: '18px', lineHeight: '1.3', marginBottom: '12px' }}>
+            Diamond · Level {stage.level} ({stage.name})
+          </h2>
+
+          {/* Tagline */}
+          <p className="text-sm text-center" style={{ fontSize: '14px', lineHeight: '1.5', marginBottom: '12px', color: '#A0AEC0' }}>
+            Every small win polishes your diamond.
+          </p>
+
+          {/* Progress Section */}
+          <div className="w-full max-w-xs">
+            {/* Progress Hint */}
+            {nextStage && (
+              <p className="text-xs text-slate-500 text-center mb-2" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '12px' }}>
+                {gpToEvolve} GP left to evolve into Level {nextStage.level}.
+              </p>
+            )}
+
+            {/* Progress Bar Card */}
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800/50">
-              <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-widest">
+              <div className="flex justify-between text-xs font-semibold text-slate-500 mb-2 uppercase" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
                 <span>Lvl {stage.level}</span>
                 <span className="text-indigo-400">
-                  {nextStage ? `${nextStage.minGP - totalGP} GP TO EVOLVE` : "MAX LEVEL"}
+                  {nextStage ? `${gpToEvolve} GP TO EVOLVE` : "MAX LEVEL"}
                 </span>
                 <span>Lvl {nextStage ? nextStage.level : stage.level}</span>
               </div>
@@ -930,36 +973,58 @@ export default function GrowthApp() {
           </div>
         </div>
 
-        {/* Recent Wins */}
-        <div>
+        {/* Recent Wins Section */}
+        <div style={{ marginTop: '16px' }}>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Recent Wins</h3>
-            <button onClick={() => setView("map")} className="text-indigo-400 text-xs font-bold hover:underline">View All</button>
+            <h3 className="text-lg font-semibold text-white" style={{ fontSize: '18px', lineHeight: '1.3' }}>
+              Your Recent Growth
+            </h3>
+            <button
+              onClick={() => setView("map")}
+              className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+              style={{ fontSize: '14px' }}
+            >
+              View All
+            </button>
           </div>
+
           <div className="space-y-3">
             {recentLogs.length > 0 ? (
               recentLogs.map((log) => {
                 const CatIcon = CATEGORIES.find((c) => c.id === log.category)?.icon || Star;
+                const category = CATEGORIES.find((c) => c.id === log.category);
                 return (
-                  <div key={log.id} className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50 flex justify-between items-center group hover:bg-slate-800/40 transition-all">
+                  <div
+                    key={log.id}
+                    className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50 flex justify-between items-center group hover:bg-slate-800/40 transition-all"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${CATEGORIES.find((c) => c.id === log.category)?.bg}`}>
-                        <CatIcon size={18} className={CATEGORIES.find((c) => c.id === log.category)?.color} />
+                      <div className={`p-2 rounded-lg ${category?.bg}`}>
+                        <CatIcon size={18} className={category?.color} />
                       </div>
                       <div>
-                        <p className="font-bold text-white text-sm">{log.title}</p>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">
-                          {log.category}
+                        {/* Title - Body 14px Semibold */}
+                        <p className="font-semibold text-white" style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                          {log.title}
+                        </p>
+                        {/* Meta - Caption 12px Regular */}
+                        <p className="text-slate-500" style={{ fontSize: '12px', lineHeight: '1.5' }}>
+                          {category?.label} · {log.difficulty.charAt(0).toUpperCase() + log.difficulty.slice(1)} · Today
                         </p>
                       </div>
                     </div>
-                    <span className="text-indigo-400 font-black text-sm">+{log.gp} GP</span>
+                    {/* Points - Body 14px Semibold */}
+                    <span className="font-semibold text-indigo-400" style={{ fontSize: '14px' }}>
+                      +{log.gp} GP
+                    </span>
                   </div>
                 );
               })
             ) : (
               <div className="text-center py-12 border border-dashed border-slate-800 rounded-2xl">
-                <p className="text-slate-500 text-sm">Start your journey today! 💎</p>
+                <p className="text-sm text-slate-500" style={{ fontSize: '14px', lineHeight: '1.5' }}>
+                  Start your journey today! 💎
+                </p>
               </div>
             )}
           </div>
@@ -967,6 +1032,7 @@ export default function GrowthApp() {
       </div>
     );
   };
+
 
   const renderMap = () => {
     // Get current month and year
