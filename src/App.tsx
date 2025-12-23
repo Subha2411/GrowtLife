@@ -176,7 +176,7 @@ interface EchoCompanionProps {
 
 const EchoCompanion: React.FC<EchoCompanionProps> = ({ level, isReacting = false }) => {
   const levelConfig = {
-    1: { size: 60, color: '#C8B6FF', opacity: 0.6, facets: 0, sparkles: 0, glow: 0, rotation: 0 },
+    1: { size: 60, color: '#C8B6FF', opacity: 0.75, facets: 0, sparkles: 0, glow: 20, rotation: 0 },
     2: { size: 80, color: '#9D7FD9', opacity: 0.8, facets: 4, sparkles: 0, glow: 0, rotation: 0 },
     3: { size: 100, color: '#7C5AC2', opacity: 0.95, facets: 8, sparkles: 4, glow: 0, rotation: 8 },
     4: { size: 120, color: '#6B46C1', opacity: 1.0, facets: 12, sparkles: 6, glow: 15, rotation: 6 },
@@ -302,8 +302,14 @@ const EchoCompanion: React.FC<EchoCompanionProps> = ({ level, isReacting = false
           100% { transform: scale(2); opacity: 0; }
         }
         
+        @keyframes glow-breathe {
+          0%, 100% { filter: drop-shadow(0 0 20px rgba(200, 182, 255, 0.3)); }
+          50% { filter: drop-shadow(0 0 20px rgba(200, 182, 255, 0.5)); }
+        }
+        
     .diamond-core {
           ${isReacting ? 'animation: diamond-react 0.5s ease-out;' : ''}
+          ${level === 1 && !isReacting ? 'animation: glow-breathe 4s ease-in-out infinite;' : ''}
           filter: drop-shadow(0 0 ${isReacting ? config.glow * 2 : config.glow}px ${config.color});
         }
         
@@ -959,7 +965,15 @@ export default function GrowthApp() {
 
         {/* Companion Section */}
         <div className="flex flex-col items-center py-4" style={{ marginTop: '16px' }}>
-          <div className="flex justify-center mb-6">
+          {/* Diamond Background Card */}
+          <div
+            className="flex justify-center mb-6"
+            style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              borderRadius: '16px',
+              padding: '20px'
+            }}
+          >
             <EchoCompanion level={stage.level} isReacting={false} />
           </div>
 
