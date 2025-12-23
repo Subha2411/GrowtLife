@@ -103,25 +103,51 @@ const STAGES = [
     level: 1,
     name: "The Rough",
     minGP: 0,
+    minStreak: 0,
     icon: Hexagon,
     color: "text-slate-400",
-    desc: "A raw stone with hidden potential.",
+    tagline: "Every small win sharpens your edge.",
+    unlockMessage: "You started. That's everything.",
   },
   {
     level: 2,
-    name: "The Grind",
-    minGP: 100,
+    name: "The Emerging",
+    minGP: 50,
+    minStreak: 3,
     icon: Gem,
     color: "text-indigo-400",
-    desc: "Shaping and polishing through hard work.",
+    tagline: "Your effort is starting to show in the light.",
+    unlockMessage: "3 days straight. You're not a one-off anymore.",
   },
   {
     level: 3,
-    name: "The Glow",
-    minGP: 250,
+    name: "The Focused",
+    minGP: 150,
+    minStreak: 7,
     icon: Diamond,
     color: "text-cyan-400",
-    desc: "A brilliant gem reflecting your dedication.",
+    tagline: "Your actions are connecting into something real.",
+    unlockMessage: "One week. You've crossed from trying into doing.",
+  },
+  {
+    level: 4,
+    name: "The Consistent",
+    minGP: 300,
+    minStreak: 21,
+    icon: Sparkles,
+    color: "text-purple-400",
+    tagline: "Your past actions are holding you up today.",
+    unlockMessage: "21 days. This is who you are now, not who you're trying to be.",
+  },
+  {
+    level: 5,
+    name: "The Transformed",
+    minGP: 500,
+    minStreak: 66,
+    icon: Zap,
+    color: "text-yellow-400",
+    tagline: "Growth is no longer a task. It's your operating system.",
+    unlockMessage: "66 days. You're not tracking progress anymore—you ARE the progress.",
   },
 ];
 
@@ -876,8 +902,9 @@ export default function GrowthApp() {
   );
 
   const renderHome = () => {
-    const stage = [...STAGES].reverse().find((s) => totalGP >= s.minGP) || STAGES[0];
-    const nextStage = STAGES.find((s) => s.minGP > totalGP);
+    // Calculate current stage based on BOTH GP and streak requirements
+    const stage = [...STAGES].reverse().find((s) => totalGP >= s.minGP && streak >= s.minStreak) || STAGES[0];
+    const nextStage = STAGES.find((s) => s.minGP > totalGP || s.minStreak > streak);
     const progressToNext = nextStage ? totalGP - stage.minGP : 100;
     const rangeToNext = nextStage ? nextStage.minGP - stage.minGP : 100;
     const Icon = stage.icon;
@@ -938,22 +965,41 @@ export default function GrowthApp() {
 
           {/* Companion Level Text */}
           <h2 className="text-lg font-semibold text-white text-center" style={{ fontSize: '18px', lineHeight: '1.3', marginBottom: '12px' }}>
-            Diamond · Level {stage.level} ({stage.name})
+            Level {stage.level} · {stage.name}
           </h2>
 
-          {/* Tagline */}
+          {/* Dynamic Tagline */}
           <p className="text-sm text-center" style={{ fontSize: '14px', lineHeight: '1.5', marginBottom: '12px', color: '#A0AEC0' }}>
-            Every small win polishes your diamond.
+            {stage.tagline}
           </p>
 
           {/* Progress Section */}
           <div className="w-full max-w-xs">
-            {/* Progress Hint */}
-            {nextStage && (
-              <p className="text-xs text-slate-500 text-center mb-2" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '12px' }}>
-                {gpToEvolve} GP left to evolve into Level {nextStage.level}.
-              </p>
-            )}
+            {/* Smart Progress Hint */}
+            {nextStage && (() => {
+              const gpNeeded = gpToEvolve;
+              const streakNeeded = Math.max(0, nextStage.minStreak - streak);
+              const bothNeeded = gpNeeded > 0 && streakNeeded > 0;
+
+              let hintText = "";
+              if (stage.level === 5) {
+                hintText = "You've reached the highest level. Now it's about depth, not height.";
+              } else if (bothNeeded) {
+                hintText = `${gpNeeded} more GP and ${streakNeeded} more days to become ${nextStage.name}.`;
+              } else if (gpNeeded > 0) {
+                hintText = `${gpNeeded} more GP and your pattern becomes visible.`;
+              } else if (streakNeeded > 0) {
+                hintText = `${streakNeeded} more days and your momentum becomes unstoppable.`;
+              } else {
+                hintText = `You're ready. Level ${nextStage.level} unlocks with your next action.`;
+              }
+
+              return (
+                <p className="text-xs text-slate-500 text-center mb-2" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '12px' }}>
+                  {hintText}
+                </p>
+              );
+            })()}
 
             {/* Progress Bar Card */}
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800/50">
