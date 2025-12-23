@@ -968,38 +968,149 @@ export default function GrowthApp() {
     );
   };
 
-  const renderMap = () => (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <h2 className="text-2xl font-black text-white">Your Growth Journey</h2>
-      <div className="space-y-4">
-        {logs.length > 0 ? (
-          logs.map((log) => {
-            const CatIcon = CATEGORIES.find((c) => c.id === log.category)?.icon || Star;
-            return (
-              <div key={log.id} className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/50 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${CATEGORIES.find((c) => c.id === log.category)?.bg}`}>
-                    <CatIcon size={18} className={CATEGORIES.find((c) => c.id === log.category)?.color} />
+  const renderMap = () => {
+    // Get current month and year
+    const currentDate = new Date();
+    const monthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    // Group logs by date
+    const groupedLogs = logs.reduce((groups, log) => {
+      const logDate = new Date(log.timestamp);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      let dateLabel;
+      if (logDate.toDateString() === today.toDateString()) {
+        dateLabel = 'TODAY';
+      } else if (logDate.toDateString() === yesterday.toDateString()) {
+        dateLabel = 'YESTERDAY';
+      } else {
+        dateLabel = logDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+      }
+
+      if (!groups[dateLabel]) {
+        groups[dateLabel] = [];
+      }
+      groups[dateLabel].push(log);
+      return groups;
+    }, {} as Record<string, typeof logs>);
+
+    return (
+      <div className="space-y-6 animate-in fade-in duration-500">
+        {/* Header */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-black text-white mb-1">Monthly Growth Map</h2>
+          <p className="text-slate-400 text-sm">{monthYear}</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl p-5">
+            <div className="flex items-center gap-2 text-slate-400 mb-2 text-xs uppercase font-bold tracking-wide">
+              <Trophy size={16} className="text-indigo-400" />
+              Total GP
+            </div>
+            <div className="text-5xl font-black text-white mb-1">{totalGP}</div>
+          </div>
+
+          <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl p-5">
+            <div className="flex items-center gap-2 text-slate-400 mb-2 text-xs uppercase font-bold tracking-wide">
+              <Flame size={16} className="text-orange-400" />
+              Streak
+            </div>
+            <div className="text-5xl font-black text-white mb-1">
+              {streak}
+              <span className="text-lg font-normal text-slate-400 ml-2">days</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Journey Section */}
+        <div>
+          <h3 className="text-xl font-black text-white mb-6">Your Growth Journey</h3>
+
+          {logs.length > 0 ? (
+            <div className="space-y-8">
+              {Object.entries(groupedLogs).map(([dateLabel, dateLogs]) => (
+                <div key={dateLabel}>
+                  {/* Date Label */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 rounded-full bg-slate-600" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      {dateLabel}
+                    </span>
                   </div>
-                  <div>
-                    <p className="font-bold text-white text-sm">{log.title}</p>
-                    <p className="text-[10px] text-slate-500 uppercase font-bold">
-                      {new Date(log.timestamp).toLocaleDateString()} • {log.category}
-                    </p>
+
+                  {/* Timeline Items */}
+                  <div className="relative ml-[6px]">
+                    {/* Vertical connecting line */}
+                    {dateLogs.length > 1 && (
+                      <div className="absolute left-0 top-8 bottom-8 w-[2px] bg-slate-800" />
+                    )}
+
+                    <div className="space-y-4">
+                      {dateLogs.map((log, index) => {
+                        const category = CATEGORIES.find((c) => c.id === log.category);
+                        const CatIcon = category?.icon || Star;
+                        const difficultyColors = {
+                          easy: 'text-emerald-400',
+                          medium: 'text-amber-400',
+                          hard: 'text-rose-400',
+                        };
+
+                        return (
+                          <div key={log.id} className="flex gap-4 items-start">
+                            {/* Icon Circle */}
+                            <div className={`relative z-10 flex-shrink-0 w-10 h-10 rounded-full ${category?.bg || 'bg-slate-800'} border-2 border-slate-900 flex items-center justify-center`}>
+                              <CatIcon size={18} className={category?.color || 'text-white'} />
+                            </div>
+
+                            {/* Achievement Card */}
+                            <div className="flex-1 bg-slate-900/60 border border-slate-800/50 rounded-xl p-4">
+                              <div className="flex justify-between items-start gap-3">
+                                <div className="flex-1">
+                                  <h4 className="text-white font-semibold text-base mb-2">{log.title}</h4>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    {/* Category Badge */}
+                                    <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${category?.bg || 'bg-slate-800'} ${category?.color || 'text-white'}`}>
+                                      {log.category}
+                                    </span>
+                                    <span className="text-slate-600">•</span>
+                                    {/* Difficulty Badge */}
+                                    <span className={`text-xs font-bold uppercase ${difficultyColors[log.difficulty as keyof typeof difficultyColors] || 'text-slate-400'}`}>
+                                      {log.difficulty}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* GP Badge */}
+                                <div className="flex-shrink-0 bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-lg">
+                                  <span className="text-sm font-bold">+{log.gp} GP</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
-                <span className="text-indigo-400 font-black text-sm">+{log.gp} GP</span>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 bg-slate-900/30 border border-slate-800/50 rounded-2xl">
+              <div className="text-slate-500 mb-2">
+                <Calendar size={48} className="mx-auto opacity-20" />
               </div>
-            );
-          })
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-slate-500">No logs yet. Go back home and log your first win!</p>
-          </div>
-        )}
+              <p className="text-slate-400 font-medium">No growth logs yet</p>
+              <p className="text-slate-500 text-sm mt-1">Start tracking your wins to see your journey!</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderProfile = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
