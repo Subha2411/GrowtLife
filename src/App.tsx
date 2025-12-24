@@ -40,6 +40,16 @@ import {
   Gem,
   Diamond,
 } from "lucide-react";
+import { auth, db } from "./firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+  User as FirebaseUser
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 // --- Types ---
 interface GrowthLog {
@@ -494,8 +504,35 @@ export default function GrowthApp() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationGP, setCelebrationGP] = useState(0);
 
-  // Load data from local storage on mount
+  // Firebase Auth State Listener
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // User is signed in, load profile from Firestore
+        const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUser({
+            name: userData.name || firebaseUser.displayName || "",
+            email: firebaseUser.email || "",
+            uid: firebaseUser.uid,
+          });
+        } else {
+          // User exists but no profile data - use displayName or email
+          setUser({
+            name: firebaseUser.displayName || "",
+            email: firebaseUser.email || "",
+            uid: firebaseUser.uid,
+          });
+        }
+      } else {
+        // User is signed out
+        setUser(null);
+      }
+      setIsAuthLoading(false);
+    });
+
+    // Load saved data
     const savedLogs = localStorage.getItem("growth_logs");
     if (savedLogs) {
       setLogs(JSON.parse(savedLogs));
@@ -505,8 +542,7 @@ export default function GrowthApp() {
       setStarredIds(new Set(JSON.parse(savedStarred)));
     }
 
-    // For now, just set auth as complete
-    setIsAuthLoading(false);
+    return () => unsubscribe();
   }, []);
 
   // Save data whenever it changes
@@ -623,15 +659,49 @@ export default function GrowthApp() {
       return;
     }
 
+    if (authName.length < 2 || authName.length > 50) {
+      setAuthError("Name must be between 2 and 50 characters");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    if (authPassword.length < 6) {
+      setAuthError("Password must be at least 6 characters");
+      setAuthSubmitting(false);
+      return;
+    }
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setUser({ name: authName, email: authEmail, uid: "demo-user" });
+      // Create Firebase user
+      const userCredential = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
+
+      // Update display name
+      await updateProfile(userCredential.user, {
+        displayName: authName
+      });
+
+      // Save to Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        name: authName,
+        email: authEmail,
+        createdAt: new Date().toISOString(),
+      });
+
       setShowAuthModal(false);
       setAuthName("");
       setAuthEmail("");
       setAuthPassword("");
+      setAuthSubmitting(false);
     } catch (error: any) {
-      setAuthError(error.message || "Failed to sign up");
+      if (error.code === 'auth/email-already-in-use') {
+        setAuthError("Email already in use");
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError("Invalid email address");
+      } else if (error.code === 'auth/weak-password') {
+        setAuthError("Password is too weak");
+      } else {
+        setAuthError(error.message || "Failed to sign up");
+      }
       setAuthSubmitting(false);
     }
   };
@@ -648,21 +718,34 @@ export default function GrowthApp() {
     }
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await signInWithEmailAndPassword(auth, authEmail, authPassword);
       setShowAuthModal(false);
       setAuthEmail("");
       setAuthPassword("");
-      setUser({ name: authEmail.split('@')[0], email: authEmail, uid: "demo-user" });
+      setAuthSubmitting(false);
     } catch (error: any) {
-      setAuthError(error.message || "Failed to login");
+      if (error.code === 'auth/user-not-found') {
+        setAuthError("No account found with this email");
+      } else if (error.code === 'auth/wrong-password') {
+        setAuthError("Incorrect password");
+      } else if (error.code === 'auth/invalid-email') {
+        setAuthError("Invalid email address");
+      } else {
+        setAuthError(error.message || "Failed to login");
+      }
       setAuthSubmitting(false);
     }
   };
 
   const handleLogout = async () => {
-    setUser(null);
-    setShowAuthModal(false);
-    setView("home");
+    try {
+      await signOut(auth);
+      setUser(null);
+      setShowAuthModal(false);
+      setView("home");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
   const renderAuthModal = () => (
