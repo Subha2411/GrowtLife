@@ -741,7 +741,7 @@ export default function GrowthApp() {
     setAuthSubmitting(true);
 
     if (!authEmail || !authPassword) {
-      setAuthError("Please fill in all fields");
+      setAuthError("Please enter both email and password");
       setAuthSubmitting(false);
       return;
     }
@@ -754,11 +754,13 @@ export default function GrowthApp() {
       setAuthSubmitting(false);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        setAuthError("No account found with this email");
+        setAuthError("No account found with this email. Sign up instead?");
       } else if (error.code === 'auth/wrong-password') {
-        setAuthError("Incorrect password");
+        setAuthError("Incorrect password. Try again.");
       } else if (error.code === 'auth/invalid-email') {
-        setAuthError("Invalid email address");
+        setAuthError("Please enter a valid email address");
+      } else if (error.code === 'auth/invalid-credential') {
+        setAuthError("Invalid email or password. Please try again.");
       } else {
         setAuthError(error.message || "Failed to login");
       }
@@ -891,6 +893,18 @@ export default function GrowthApp() {
                   className="block mt-2 text-indigo-400 hover:text-indigo-300 font-semibold underline"
                 >
                   Go to Login
+                </button>
+              )}
+              {authError.includes("Sign up instead") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode("signup");
+                    setAuthError("");
+                  }}
+                  className="block mt-2 text-indigo-400 hover:text-indigo-300 font-semibold underline"
+                >
+                  Create Account
                 </button>
               )}
             </div>
