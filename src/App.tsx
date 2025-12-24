@@ -920,10 +920,10 @@ export default function GrowthApp() {
       <div className="space-y-4 animate-in fade-in duration-500">
         {/* Greeting */}
         <div className="mb-4">
-          <h1 className="text-lg font-semibold text-white mb-1" style={{ fontSize: '18px', lineHeight: '1.3' }}>
+          <h1 className="font-semibold text-white mb-1" style={{ fontSize: '20px', lineHeight: '1.3', color: '#FFFFFF' }}>
             Welcome back, {user?.name || 'Friend'} 👋
           </h1>
-          <p className="text-sm text-slate-500" style={{ fontSize: '14px', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#A0AEC0' }}>
             You're ahead of where you were yesterday.
           </p>
         </div>
@@ -933,15 +933,15 @@ export default function GrowthApp() {
           {/* Growth Points Card */}
           <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800/50 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-1" style={{ marginBottom: '4px' }}>
-              <Trophy size={14} className="text-slate-400" />
-              <p className="text-xs uppercase font-semibold text-slate-400" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+              <Trophy size={14} style={{ color: '#A0AEC0' }} />
+              <p className="uppercase font-semibold" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#A0AEC0' }}>
                 Growth Points
               </p>
             </div>
-            <p className="text-2xl font-semibold text-white" style={{ fontSize: '24px', lineHeight: '1.3' }}>
+            <p className="font-semibold" style={{ fontSize: '24px', lineHeight: '1.3', color: '#FFFFFF' }}>
               {totalGP}
             </p>
-            <p className="text-xs text-slate-500 mt-2" style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px' }}>
+            <p style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px', color: '#A0AEC0' }}>
               Evidence of progress
             </p>
           </div>
@@ -950,14 +950,14 @@ export default function GrowthApp() {
           <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800/50 backdrop-blur-sm">
             <div className="flex items-center gap-2 mb-1" style={{ marginBottom: '4px' }}>
               <Flame size={14} className="text-orange-500" />
-              <p className="text-xs uppercase font-semibold text-slate-400" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+              <p className="uppercase font-semibold" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#A0AEC0' }}>
                 Active Streak
               </p>
             </div>
-            <p className="text-2xl font-semibold text-white" style={{ fontSize: '24px', lineHeight: '1.3' }}>
+            <p className="font-semibold" style={{ fontSize: '24px', lineHeight: '1.3', color: '#FFFFFF' }}>
               🔥 {streak}-day{streak !== 1 ? 's' : ''}
             </p>
-            <p className="text-xs text-slate-500 mt-2" style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px' }}>
+            <p style={{ fontSize: '12px', lineHeight: '1.5', marginTop: '8px', color: '#A0AEC0' }}>
               Don't break the chain
             </p>
           </div>
@@ -978,7 +978,7 @@ export default function GrowthApp() {
           </div>
 
           {/* Companion Level Text */}
-          <h2 className="text-lg font-semibold text-white text-center" style={{ fontSize: '18px', lineHeight: '1.3', marginBottom: '12px' }}>
+          <h2 className="font-semibold text-center" style={{ fontSize: '18px', lineHeight: '1.3', marginBottom: '12px', color: '#FFFFFF' }}>
             Level {stage.level} · {stage.name}
           </h2>
 
@@ -1009,7 +1009,7 @@ export default function GrowthApp() {
               }
 
               return (
-                <p className="text-xs text-slate-500 text-center mb-2" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '12px' }}>
+                <p className="text-center" style={{ fontSize: '12px', lineHeight: '1.5', marginBottom: '12px', color: '#A0AEC0' }}>
                   {hintText}
                 </p>
               );
@@ -1017,7 +1017,7 @@ export default function GrowthApp() {
 
             {/* Progress Bar Card */}
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800/50">
-              <div className="flex justify-between text-xs font-semibold text-slate-500 mb-2 uppercase" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+              <div className="flex justify-between font-semibold uppercase mb-2" style={{ fontSize: '12px', letterSpacing: '0.08em', color: '#A0AEC0' }}>
                 <span>Lvl {stage.level}</span>
                 <span className="text-indigo-400">
                   {nextStage ? `${gpToEvolve} GP TO EVOLVE` : "MAX LEVEL"}
@@ -1036,7 +1036,7 @@ export default function GrowthApp() {
         {/* Recent Wins Section */}
         <div style={{ marginTop: '16px' }}>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-white" style={{ fontSize: '18px', lineHeight: '1.3' }}>
+            <h3 className="font-semibold" style={{ fontSize: '16px', lineHeight: '1.3', color: '#FFFFFF' }}>
               Your Recent Growth
             </h3>
             <button
@@ -1126,28 +1126,28 @@ export default function GrowthApp() {
       <div className="space-y-6 animate-in fade-in duration-500">
         {/* Header */}
         <div className="mb-8">
-          <h2 className="text-3xl font-black text-white mb-1">Monthly Growth Map</h2>
-          <p className="text-slate-400 text-sm">{monthYear}</p>
+          <h2 className="font-semibold mb-1" style={{ fontSize: '20px', lineHeight: '1.3', color: '#FFFFFF' }}>Monthly Growth Map</h2>
+          <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#A0AEC0' }}>{monthYear}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl p-5">
-            <div className="flex items-center gap-2 text-slate-400 mb-2 text-xs uppercase font-bold tracking-wide">
-              <Trophy size={16} className="text-indigo-400" />
+            <div className="flex items-center gap-2 mb-2 uppercase font-semibold" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#A0AEC0' }}>
+              <Trophy size={14} className="text-indigo-400" />
               Total GP
             </div>
-            <div className="text-5xl font-black text-white mb-1">{totalGP}</div>
+            <div className="font-semibold mb-1" style={{ fontSize: '24px', lineHeight: '1.3', color: '#FFFFFF' }}>{totalGP}</div>
           </div>
 
           <div className="bg-slate-900/60 border border-slate-800/50 rounded-2xl p-5">
-            <div className="flex items-center gap-2 text-slate-400 mb-2 text-xs uppercase font-bold tracking-wide">
-              <Flame size={16} className="text-orange-400" />
+            <div className="flex items-center gap-2 mb-2 uppercase font-semibold" style={{ fontSize: '11px', letterSpacing: '0.08em', color: '#A0AEC0' }}>
+              <Flame size={14} className="text-orange-400" />
               Streak
             </div>
-            <div className="text-5xl font-black text-white mb-1">
+            <div className="font-semibold mb-1" style={{ fontSize: '24px', lineHeight: '1.3', color: '#FFFFFF' }}>
               {streak}
-              <span className="text-lg font-normal text-slate-400 ml-2">days</span>
+              <span style={{ fontSize: '14px', color: '#A0AEC0', marginLeft: '8px' }}>days</span>
             </div>
           </div>
         </div>
