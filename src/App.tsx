@@ -484,7 +484,9 @@ export default function GrowthApp() {
   const [authName, setAuthName] = useState("");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authConfirmPassword, setAuthConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
 
@@ -653,7 +655,7 @@ export default function GrowthApp() {
     setAuthError("");
     setAuthSubmitting(true);
 
-    if (!authName || !authEmail || !authPassword) {
+    if (!authName || !authEmail || !authPassword || !authConfirmPassword) {
       setAuthError("Please fill in all fields");
       setAuthSubmitting(false);
       return;
@@ -665,8 +667,34 @@ export default function GrowthApp() {
       return;
     }
 
+    // Password validation
     if (authPassword.length < 6) {
       setAuthError("Password must be at least 6 characters");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    if (!/[a-zA-Z]/.test(authPassword)) {
+      setAuthError("Password must contain at least 1 letter");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    if (!/[0-9]/.test(authPassword)) {
+      setAuthError("Password must contain at least 1 number");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    if (/\s/.test(authPassword)) {
+      setAuthError("Password cannot contain spaces");
+      setAuthSubmitting(false);
+      return;
+    }
+
+    // Confirm password check
+    if (authPassword !== authConfirmPassword) {
+      setAuthError("Passwords don't match");
       setAuthSubmitting(false);
       return;
     }
@@ -691,10 +719,11 @@ export default function GrowthApp() {
       setAuthName("");
       setAuthEmail("");
       setAuthPassword("");
+      setAuthConfirmPassword("");
       setAuthSubmitting(false);
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
-        setAuthError("Email already in use");
+        setAuthError("This email is already registered. Try logging in instead.");
       } else if (error.code === 'auth/invalid-email') {
         setAuthError("Invalid email address");
       } else if (error.code === 'auth/weak-password') {
@@ -818,11 +847,52 @@ export default function GrowthApp() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {authMode === "signup" && (
+              <p className="mt-2 text-xs text-slate-500">
+                Password must be at least 6 characters with 1 letter and 1 number
+              </p>
+            )}
           </div>
+
+          {authMode === "signup" && (
+            <div>
+              <label className="block text-slate-400 text-xs uppercase font-bold mb-2">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 pr-10 text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                  value={authConfirmPassword}
+                  onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-200"
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+          )}
 
           {authError && (
             <div className="p-3 bg-red-900/30 border border-red-700/50 rounded-lg text-red-400 text-sm">
               {authError}
+              {authError.includes("already registered") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode("login");
+                    setAuthError("");
+                  }}
+                  className="block mt-2 text-indigo-400 hover:text-indigo-300 font-semibold underline"
+                >
+                  Go to Login
+                </button>
+              )}
             </div>
           )}
 
@@ -849,6 +919,7 @@ export default function GrowthApp() {
                 setAuthMode(authMode === "login" ? "signup" : "login");
                 setAuthError("");
                 setAuthName("");
+                setAuthConfirmPassword("");
               }}
               className="text-indigo-400 hover:text-indigo-300 font-semibold"
             >
