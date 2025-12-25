@@ -1486,7 +1486,14 @@ export default function GrowthApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 pb-24">
-      {user && (
+      {/* Loading State */}
+      {isAuthLoading && (
+        <div className="fixed inset-0 bg-slate-950 flex items-center justify-center">
+          <Loader2 size={48} className="text-indigo-500 animate-spin" />
+        </div>
+      )}
+
+      {user && !isAuthLoading && (
         <>
           {/* Top Bar */}
           <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex items-center gap-3">
