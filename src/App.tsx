@@ -1547,7 +1547,7 @@ export default function GrowthApp() {
       {showLogModal && renderLogModal()}
       {showAuthModal && renderAuthModal()}
       {renderCelebration()}
-      {!user && !showAuthModal && !isAuthLoading && (
+      {!isAuthLoading && !user && !showAuthModal && (
         <div className="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center p-6 text-center">
           <div className="bg-indigo-600 p-4 rounded-3xl mb-6 shadow-2xl shadow-indigo-500/20">
             <Activity size={48} className="text-white" />
