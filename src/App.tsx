@@ -1486,62 +1486,66 @@ export default function GrowthApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 pb-24">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex items-center gap-3">
-        <div className="bg-indigo-600 p-1.5 rounded-lg">
-          <Activity size={18} className="text-white" />
-        </div>
-        <h1 className="font-bold text-lg tracking-tight text-white">GrowtLife</h1>
-      </div>
+      {user && (
+        <>
+          {/* Top Bar */}
+          <div className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 px-6 py-4 flex items-center gap-3">
+            <div className="bg-indigo-600 p-1.5 rounded-lg">
+              <Activity size={18} className="text-white" />
+            </div>
+            <h1 className="font-bold text-lg tracking-tight text-white">GrowtLife</h1>
+          </div>
 
-      {/* Main Content Area */}
-      <main className="max-w-lg mx-auto p-6">
-        {view === "home" && renderHome()}
-        {view === "map" && renderMap()}
-        {view === "profile" && renderProfile()}
-      </main>
+          {/* Main Content Area */}
+          <main className="max-w-lg mx-auto p-6">
+            {view === "home" && renderHome()}
+            {view === "map" && renderMap()}
+            {view === "profile" && renderProfile()}
+          </main>
 
-      {/* FAB */}
-      {view === "home" && (
-        <button
-          onClick={() => setShowLogModal(true)}
-          className="fixed bottom-28 right-6 bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-2xl shadow-indigo-500/40 transition-all active:scale-95 z-40"
-        >
-          <Plus size={32} strokeWidth={3} />
-        </button>
+          {/* FAB */}
+          {view === "home" && (
+            <button
+              onClick={() => setShowLogModal(true)}
+              className="fixed bottom-28 right-6 bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-full shadow-2xl shadow-indigo-500/40 transition-all active:scale-95 z-40"
+            >
+              <Plus size={32} strokeWidth={3} />
+            </button>
+          )}
+
+          {/* Bottom Navigation */}
+          <div className="fixed bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 px-8 py-4 pb-8 z-40">
+            <div className="max-w-lg mx-auto flex justify-between items-center">
+              <button
+                onClick={() => setView("home")}
+                className={`flex flex-col items-center gap-1 transition-colors ${view === "home" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
+                  }`}
+              >
+                <Activity size={24} strokeWidth={view === "home" ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Home</span>
+              </button>
+
+              <button
+                onClick={() => setView("map")}
+                className={`flex flex-col items-center gap-1 transition-colors ${view === "map" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
+                  }`}
+              >
+                <Calendar size={24} strokeWidth={view === "map" ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Map</span>
+              </button>
+
+              <button
+                onClick={() => setView("profile")}
+                className={`flex flex-col items-center gap-1 transition-colors ${view === "profile" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
+                  }`}
+              >
+                <UserIcon size={24} strokeWidth={view === "profile" ? 2.5 : 2} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+              </button>
+            </div>
+          </div>
+        </>
       )}
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-lg border-t border-slate-800 px-8 py-4 pb-8 z-40">
-        <div className="max-w-lg mx-auto flex justify-between items-center">
-          <button
-            onClick={() => setView("home")}
-            className={`flex flex-col items-center gap-1 transition-colors ${view === "home" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
-              }`}
-          >
-            <Activity size={24} strokeWidth={view === "home" ? 2.5 : 2} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Home</span>
-          </button>
-
-          <button
-            onClick={() => setView("map")}
-            className={`flex flex-col items-center gap-1 transition-colors ${view === "map" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
-              }`}
-          >
-            <Calendar size={24} strokeWidth={view === "map" ? 2.5 : 2} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Map</span>
-          </button>
-
-          <button
-            onClick={() => setView("profile")}
-            className={`flex flex-col items-center gap-1 transition-colors ${view === "profile" ? "text-indigo-400" : "text-slate-500 hover:text-slate-400"
-              }`}
-          >
-            <UserIcon size={24} strokeWidth={view === "profile" ? 2.5 : 2} />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
-          </button>
-        </div>
-      </div>
 
       {/* Modals */}
       {showLogModal && renderLogModal()}
@@ -1553,7 +1557,7 @@ export default function GrowthApp() {
             <Activity size={48} className="text-white" />
           </div>
           <h1 className="text-4xl font-black text-white mb-2">GrowtLife</h1>
-          <p className="text-slate-400 mb-12 max-w-xs">Track your evolution, one win at a time.</p>
+          <p className="text-slate-400 mb-12 max-w-xs">Track growth. Build habits. Level up.</p>
           <button
             onClick={() => {
               setShowAuthModal(true);
