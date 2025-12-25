@@ -489,7 +489,6 @@ export default function GrowthApp() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authSubmitting, setAuthSubmitting] = useState(false);
-  const [showLandingPage, setShowLandingPage] = useState(true);
 
   // App State
   const [logs, setLogs] = useState<GrowthLog[]>([]);
@@ -722,7 +721,6 @@ export default function GrowthApp() {
       setAuthPassword("");
       setAuthConfirmPassword("");
       setAuthSubmitting(false);
-      setShowLandingPage(false);
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
         setAuthError("This email is already registered. Try logging in instead.");
@@ -754,7 +752,6 @@ export default function GrowthApp() {
       setAuthEmail("");
       setAuthPassword("");
       setAuthSubmitting(false);
-      setShowLandingPage(false);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
         setAuthError("No account found with this email. Sign up instead?");
@@ -1550,7 +1547,7 @@ export default function GrowthApp() {
       {showLogModal && renderLogModal()}
       {showAuthModal && renderAuthModal()}
       {renderCelebration()}
-      {!isAuthLoading && showLandingPage && (
+      {!isAuthLoading && !user && !showAuthModal && (
         <div className="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center p-6 text-center">
           <div className="bg-indigo-600 p-4 rounded-3xl mb-6 shadow-2xl shadow-indigo-500/20">
             <Activity size={48} className="text-white" />
@@ -1559,14 +1556,8 @@ export default function GrowthApp() {
           <p className="text-slate-400 mb-12 max-w-xs">Track your evolution, one win at a time.</p>
           <button
             onClick={() => {
-              if (user) {
-                // User is logged in, just hide landing page
-                setShowLandingPage(false);
-              } else {
-                // User not logged in, show auth modal
-                setShowAuthModal(true);
-                setAuthMode("login");
-              }
+              setShowAuthModal(true);
+              setAuthMode("login");
             }}
             className="w-full max-w-xs bg-white text-slate-950 font-black py-4 rounded-2xl shadow-xl transition-all active:scale-95 mb-4"
           >
