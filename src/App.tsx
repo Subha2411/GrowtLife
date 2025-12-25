@@ -506,55 +506,17 @@ export default function GrowthApp() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationGP, setCelebrationGP] = useState(0);
 
-  // Firebase Auth State Listener
+  // Simple Auth - Load from localStorage on mount
   useEffect(() => {
-    // Fallback timeout - if auth doesn't respond in 5 seconds, stop loading
-    const timeout = setTimeout(() => {
-      console.log("Auth timeout - stopping loading state");
-      setIsAuthLoading(false);
-    }, 5000);
-
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const savedUser = localStorage.getItem("growtlife_user");
+    if (savedUser) {
       try {
-        clearTimeout(timeout); // Clear timeout since auth responded
-
-        if (firebaseUser) {
-          // User is signed in
-          try {
-            const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-              setUser({
-                name: userData.name || firebaseUser.displayName || "",
-                email: firebaseUser.email || "",
-                uid: firebaseUser.uid,
-              });
-            } else {
-              setUser({
-                name: firebaseUser.displayName || "",
-                email: firebaseUser.email || "",
-                uid: firebaseUser.uid,
-              });
-            }
-          } catch (error) {
-            console.error("Error loading user data:", error);
-            // Still set user with basic info
-            setUser({
-              name: firebaseUser.displayName || "",
-              email: firebaseUser.email || "",
-              uid: firebaseUser.uid,
-            });
-          }
-        } else {
-          // User is signed out
-          setUser(null);
-        }
-        setIsAuthLoading(false);
-      } catch (error) {
-        console.error("Auth state change error:", error);
-        setIsAuthLoading(false);
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        localStorage.removeItem("growtlife_user");
       }
-    });
+    }
+    setIsAuthLoading(false);
 
     // Load saved data
     const savedLogs = localStorage.getItem("growth_logs");
@@ -565,8 +527,6 @@ export default function GrowthApp() {
     if (savedStarred) {
       setStarredIds(new Set(JSON.parse(savedStarred)));
     }
-
-    return () => unsubscribe();
   }, []);
 
   // Save data whenever it changes
@@ -722,21 +682,15 @@ export default function GrowthApp() {
     }
 
     try {
-      // Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(auth, authEmail, authPassword);
-
-      // Update display name
-      await updateProfile(userCredential.user, {
-        displayName: authName
-      });
-
-      // Save to Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
+      // Simple signup - save to localStorage
+      const newUser = {
         name: authName,
         email: authEmail,
-        createdAt: new Date().toISOString(),
-      });
+        uid: Date.now().toString()
+      };
 
+      localStorage.setItem("growtlife_user", JSON.stringify(newUser));
+      setUser(newUser);
       setShowAuthModal(false);
       setAuthName("");
       setAuthEmail("");
@@ -744,15 +698,7 @@ export default function GrowthApp() {
       setAuthConfirmPassword("");
       setAuthSubmitting(false);
     } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        setAuthError("This email is already registered. Try logging in instead.");
-      } else if (error.code === 'auth/invalid-email') {
-        setAuthError("Invalid email address");
-      } else if (error.code === 'auth/weak-password') {
-        setAuthError("Password is too weak");
-      } else {
-        setAuthError(error.message || "Failed to sign up");
-      }
+      setAuthError(error.message || "Failed to sign up");
       setAuthSubmitting(false);
     }
   };
@@ -769,36 +715,30 @@ export default function GrowthApp() {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, authEmail, authPassword);
+      // Simple login - create user from email
+      const loginUser = {
+        name: authEmail.split('@')[0],
+        email: authEmail,
+        uid: Date.now().toString()
+      };
+
+      localStorage.setItem("growtlife_user", JSON.stringify(loginUser));
+      setUser(loginUser);
       setShowAuthModal(false);
       setAuthEmail("");
       setAuthPassword("");
       setAuthSubmitting(false);
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found') {
-        setAuthError("No account found with this email. Sign up instead?");
-      } else if (error.code === 'auth/wrong-password') {
-        setAuthError("Incorrect password. Try again.");
-      } else if (error.code === 'auth/invalid-email') {
-        setAuthError("Please enter a valid email address");
-      } else if (error.code === 'auth/invalid-credential') {
-        setAuthError("Invalid email or password. Please try again.");
-      } else {
-        setAuthError(error.message || "Failed to login");
-      }
+      setAuthError(error.message || "Failed to login");
       setAuthSubmitting(false);
     }
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setShowAuthModal(false);
-      setView("home");
-    } catch (error) {
-      console.error("Sign out error:", error);
-    }
+    localStorage.removeItem("growtlife_user");
+    setUser(null);
+    setShowAuthModal(false);
+    setView("home");
   };
 
   const renderAuthModal = () => (
