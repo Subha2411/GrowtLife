@@ -1226,10 +1226,19 @@ export default function GrowthApp() {
                         </p>
                       </div>
                     </div>
-                    {/* Points - Body 14px Semibold */}
-                    <span className="font-semibold text-indigo-400" style={{ fontSize: '14px' }}>
-                      +{log.gp} GP
-                    </span>
+                    {/* Points & Delete */}
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-indigo-400" style={{ fontSize: '14px' }}>
+                        +{log.gp} GP
+                      </span>
+                      <button
+                        onClick={() => handleDeleteLog(log.id)}
+                        className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                        title="Delete log"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   </div>
                 );
               })
@@ -1346,7 +1355,7 @@ export default function GrowthApp() {
                             </div>
 
                             {/* Achievement Card */}
-                            <div className="flex-1 bg-slate-900/60 border border-slate-800/50 rounded-xl p-4">
+                            <div className="flex-1 bg-slate-900/60 border border-slate-800/50 rounded-xl p-4 group">
                               <div className="flex justify-between items-start gap-3">
                                 <div className="flex-1">
                                   <h4 className="text-white font-semibold text-base mb-2">{log.title}</h4>
@@ -1363,9 +1372,18 @@ export default function GrowthApp() {
                                   </div>
                                 </div>
 
-                                {/* GP Badge */}
-                                <div className="flex-shrink-0 bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-lg">
-                                  <span className="text-sm font-bold">+{log.gp} GP</span>
+                                {/* GP Badge & Delete */}
+                                <div className="flex flex-col items-end gap-2">
+                                  <div className="flex-shrink-0 bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-lg">
+                                    <span className="text-sm font-bold">+{log.gp} GP</span>
+                                  </div>
+                                  <button
+                                    onClick={() => handleDeleteLog(log.id)}
+                                    className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                    title="Delete log"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
                                 </div>
                               </div>
                             </div>
