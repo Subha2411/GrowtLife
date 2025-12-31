@@ -39,6 +39,7 @@ import {
   Hexagon,
   Gem,
   Diamond,
+  Trash2,
 } from "lucide-react";
 import { auth, db } from "./firebase";
 import {
@@ -517,27 +518,43 @@ export default function GrowthApp() {
       }
     }
     setIsAuthLoading(false);
-
-    // Load saved data
-    const savedLogs = localStorage.getItem("growth_logs");
-    if (savedLogs) {
-      setLogs(JSON.parse(savedLogs));
-    }
-    const savedStarred = localStorage.getItem("starred_ids");
-    if (savedStarred) {
-      setStarredIds(new Set(JSON.parse(savedStarred)));
-    }
   }, []);
+
+  // Load saved data when user changes
+  useEffect(() => {
+    if (user?.uid) {
+      const savedLogs = localStorage.getItem(`growth_logs_${user.uid}`);
+      if (savedLogs) {
+        setLogs(JSON.parse(savedLogs));
+      } else {
+        setLogs([]);
+      }
+
+      const savedStarred = localStorage.getItem(`starred_ids_${user.uid}`);
+      if (savedStarred) {
+        setStarredIds(new Set(JSON.parse(savedStarred)));
+      } else {
+        setStarredIds(new Set());
+      }
+    } else {
+      setLogs([]);
+      setStarredIds(new Set());
+    }
+  }, [user?.uid]);
 
   // Save data whenever it changes
   useEffect(() => {
-    localStorage.setItem("growth_logs", JSON.stringify(logs));
-  }, [logs]);
+    if (user?.uid) {
+      localStorage.setItem(`growth_logs_${user.uid}`, JSON.stringify(logs));
+    }
+  }, [logs, user?.uid]);
 
   // Save starred ids whenever they change
   useEffect(() => {
-    localStorage.setItem("starred_ids", JSON.stringify([...starredIds]));
-  }, [starredIds]);
+    if (user?.uid) {
+      localStorage.setItem(`starred_ids_${user.uid}`, JSON.stringify([...starredIds]));
+    }
+  }, [starredIds, user?.uid]);
 
   // Computed Stats
   const totalGP = useMemo(
@@ -1036,6 +1053,12 @@ export default function GrowthApp() {
       </div>
     </div>
   );
+
+  const handleDeleteLog = (logId: number) => {
+    if (confirm("Are you sure you want to delete this log?")) {
+      setLogs((prev) => prev.filter((log) => log.id !== logId));
+    }
+  };
 
   const renderHome = () => {
     // Calculate current stage based on BOTH GP and streak requirements
