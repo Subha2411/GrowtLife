@@ -169,11 +169,26 @@ const STAGES = [
 const ProgressBar = ({ current, max, colorClass = "bg-indigo-500" }: { current: number; max: number; colorClass?: string }) => {
   const percentage = Math.min(100, Math.max(0, (current / max) * 100));
   return (
-    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden relative">
       <div
-        className={`h-full ${colorClass} transition-all duration-1000 ease-out`}
+        className={`h-full ${colorClass} transition-all duration-1000 ease-out relative overflow-hidden`}
         style={{ width: `${percentage}%` }}
-      />
+      >
+        {/* Animated shine effect */}
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+            animation: 'shine 2s infinite',
+          }}
+        />
+      </div>
+      <style>{`
+        @keyframes shine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 };
@@ -603,49 +618,47 @@ export default function GrowthApp() {
       note: "",
     });
 
-    // Show celebration for first log
-    if (isFirstLog) {
-      setCelebrationGP(gpBase);
-      setShowCelebration(true);
+    // Show celebration for every log
+    setCelebrationGP(gpBase);
+    setShowCelebration(true);
 
-      // Trigger confetti
-      setTimeout(() => {
-        const duration = 2000;
-        const end = Date.now() + duration;
+    // Trigger confetti
+    setTimeout(() => {
+      const duration = 2000;
+      const end = Date.now() + duration;
 
-        const colors = ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#ef4444'];
+      const colors = ['#6366f1', '#8b5cf6', '#10b981', '#fbbf24', '#ef4444'];
 
-        (function frame() {
-          confetti({
-            particleCount: 3,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0, y: 0.6 },
-            colors: colors,
-            ticks: 200,
-            gravity: 1,
-          });
-          confetti({
-            particleCount: 3,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1, y: 0.6 },
-            colors: colors,
-            ticks: 200,
-            gravity: 1,
-          });
+      (function frame() {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.6 },
+          colors: colors,
+          ticks: 200,
+          gravity: 1,
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.6 },
+          colors: colors,
+          ticks: 200,
+          gravity: 1,
+        });
 
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          }
-        })();
-      }, 500);
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
+    }, 500);
 
-      // Auto-hide after 3 seconds
-      setTimeout(() => {
-        setShowCelebration(false);
-      }, 3000);
-    }
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setShowCelebration(false);
+    }, 3000);
   };
 
   // Authentication handlers
